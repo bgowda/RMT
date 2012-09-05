@@ -1,7 +1,6 @@
 package models
 
 import anorm._
-import anorm.SqlParser._
 import play.api.db.DB
 import play.api.Play.current
 import play.api.libs.json.{JsString, JsObject, JsValue, Format}

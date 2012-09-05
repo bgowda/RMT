@@ -5,7 +5,8 @@ import models.{Client, Project, Resource}
 import com.codahale.jerkson.Json
 import play.api.libs.json.Json._
 import Project.ProjectFormat
-import anorm.{Id, NotAssigned}
+import anorm.Id
+import exception.DuplicateException
 
 
 object Application extends Controller{
@@ -13,16 +14,22 @@ object Application extends Controller{
   def createClient = Action(parse.json) { request =>
     try {
         val clientParsed: Client = request.body.as[Client]
-        val result: Option[Client] = Client.create(clientParsed)
-        result match {
-          case Some(client) => {
-              val json = Json.generate(client)
-              Ok(json).as("application/json")
-            }
-          case None => BadRequest("Client is not created").as("application/json")
+        Client.getByName(clientParsed.name) match {
+
+           case Some(clientFound) => throw new DuplicateException("Client with that name is already present.")
+           case None => {
+              val result: Option[Client] = Client.create(clientParsed)
+              result match {
+                case Some(client) => {
+                    val json = Json.generate(client)
+                    Ok(json).as("application/json")
+                  }
+                case None => BadRequest("Client is not created").as("application/json")
+              }
+           }
         }
       }catch {
-        case e =>  BadRequest("Error processing request, verify posted json request body.").as("application/json")
+        case e =>  BadRequest("Error processing request, verify posted json request body.["+e.getMessage+"]").as("application/json")
       }
   }
 

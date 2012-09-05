@@ -21,7 +21,7 @@ object BookingStatus extends Enumeration("AWAITING","TENTATIVE", "REQUIRED"){
 case class Booking(id:Pk[Long]= NotAssigned,
                     resourceId:Long = 0,
                     hours:Int = 0,
-                    bookingDate:Date = Nil,
+                    bookingDate:Date ,
                     status:BookingStatus.BookingStatusType)
 
 

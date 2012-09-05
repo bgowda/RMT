@@ -24,17 +24,24 @@ object Client {
   }
 
   def create(client:Client):Option[Client] = {
-    DB.withConnection { implicit connection =>
-      SQL(
-        """
-          insert into client values ((select next value for client_seq),{name})
-        """).on(
-      'name -> client.name
-      ).executeInsert()
-    } match {
-      case Some(id) => get(id)
-      case None => None
-    }
+   /*match {
+
+      case Some(clientFound) => throw new RuntimeException("Client with that name is already present.")
+      case None => {*/
+          DB.withConnection { implicit connection =>
+
+            SQL(
+              """
+                insert into client values ((select next value for client_seq),{name})
+              """).on(
+            'name -> client.name
+            ).executeInsert()
+          } match {
+            case Some(id) => get(id)
+            case None => None
+          }
+      /*}
+    }*/
   }
 
   def get(id:Long):Option[Client] = {
@@ -45,6 +52,18 @@ object Client {
         """
       ).on(
       'clientId -> id
+      ).as(Client.mapper *).toList.headOption
+    }
+  }
+
+  def getByName(name:String):Option[Client] = {
+    DB.withConnection { implicit connection =>
+      SQL(
+        """
+          select * from client where lower(name)= lower({name})
+        """
+      ).on(
+        'name -> name
       ).as(Client.mapper *).toList.headOption
     }
   }
