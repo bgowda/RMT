@@ -1,0 +1,197 @@
+2012-09-04 22:42:26,280 - [INFO] - from play in main 
+Listening for HTTP on port 9000...
+
+2012-09-04 22:42:41,588 - [INFO] - from play in play-akka.actor.default-dispatcher-1 
+database [default] connected at jdbc:h2:mem:play
+
+2012-09-04 22:42:41,722 - [ERROR] - from application in New I/O server worker #1-1 
+
+
+! @6bhjbh83l - Internal server error, for request [GET /] ->
+
+play.api.db.evolutions.InvalidDatabaseRevision: Database 'default' needs evolution! [An SQL script need to be run on your database.]
+	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1.apply(Evolutions.scala:424) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1.apply(Evolutions.scala:410) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at scala.collection.LinearSeqOptimized$class.foreach(LinearSeqOptimized.scala:59) ~[scala-library.jar:0.11.3]
+	at scala.collection.immutable.List.foreach(List.scala:45) ~[scala-library.jar:0.11.3]
+	at play.api.db.evolutions.EvolutionsPlugin.onStart(Evolutions.scala:410) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.api.Play$$anonfun$start$1.apply(Play.scala:60) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.api.Play$$anonfun$start$1.apply(Play.scala:60) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at scala.collection.LinearSeqOptimized$class.foreach(LinearSeqOptimized.scala:59) ~[scala-library.jar:0.11.3]
+	at scala.collection.immutable.List.foreach(List.scala:45) ~[scala-library.jar:0.11.3]
+	at play.api.Play$.start(Play.scala:60) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.core.ReloadableApplication$$anonfun$get$1$$anonfun$apply$3$$anonfun$1.apply(ApplicationProvider.scala:125) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.core.ReloadableApplication$$anonfun$get$1$$anonfun$apply$3$$anonfun$1.apply(ApplicationProvider.scala:112) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at scala.Option.map(Option.scala:133) ~[scala-library.jar:0.11.3]
+	at play.core.ReloadableApplication$$anonfun$get$1$$anonfun$apply$3.apply(ApplicationProvider.scala:112) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.core.ReloadableApplication$$anonfun$get$1$$anonfun$apply$3.apply(ApplicationProvider.scala:110) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at scala.Either$RightProjection.flatMap(Either.scala:277) ~[scala-library.jar:0.11.3]
+	at play.core.ReloadableApplication$$anonfun$get$1.apply(ApplicationProvider.scala:110) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.core.ReloadableApplication$$anonfun$get$1.apply(ApplicationProvider.scala:110) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at akka.dispatch.Future$$anon$3.liftedTree1$1(Future.scala:195) ~[akka-actor.jar:2.0.2]
+	at akka.dispatch.Future$$anon$3.run(Future.scala:194) ~[akka-actor.jar:2.0.2]
+	at akka.dispatch.TaskInvocation.run(AbstractDispatcher.scala:94) ~[akka-actor.jar:2.0.2]
+	at akka.jsr166y.ForkJoinTask$AdaptedRunnableAction.exec(ForkJoinTask.java:1381) ~[akka-actor.jar:2.0.2]
+	at akka.jsr166y.ForkJoinTask.doExec(ForkJoinTask.java:259) ~[akka-actor.jar:2.0.2]
+	at akka.jsr166y.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:975) ~[akka-actor.jar:2.0.2]
+	at akka.jsr166y.ForkJoinPool.runWorker(ForkJoinPool.java:1479) ~[akka-actor.jar:2.0.2]
+	at akka.jsr166y.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:104) ~[akka-actor.jar:2.0.2]
+
+2012-09-04 22:42:44,127 - [WARN] - from play in New I/O server worker #1-1 
+Applying evolution script for database 'default':
+
+# --- Rev:1,Ups - 47dc181
+set ignorecase true;
+
+create sequence client_seq start with 1;
+
+create sequence project_seq start with 1;
+
+create sequence resource_seq start with 1;
+
+create sequence booking_seq start with 1;
+
+create table client (
+id                        bigint not null,
+name                      varchar(255) not null,
+constraint pk_client primary key (id))
+;
+
+create table project (
+id                        bigint not null,
+client_id                 bigint not null,
+code                      varchar(100) not null,
+name                      varchar(255) not null,
+owner                     varchar(255) not null,
+location                  varchar(255) not null,
+constraint pk_project primary key (id) ,
+constraint fk_project_client foreign key (client_id) references client (id) on delete cascade)
+;
+
+create table resource (
+id                        bigint not null,
+project_id                bigint not null,
+firstName                 varchar(255) ,
+lastName                  varchar(255) ,
+role                      varchar(255) not null,
+department                varchar(255) not null,
+constraint pk_resource primary key (id),
+constraint fk_resource_project foreign key (project_id) references project (id) on delete cascade)
+;
+
+create table booking (
+id                        bigint not null,
+resource_id               bigint not null,
+hours                     bigint not null,
+bookingDate               date not null,
+status                    varchar(100) not null,
+constraint pk_booking  primary key (id),
+constraint fk_booking_resource foreign key (resource_id) references resource(id) on delete cascade)
+;
+
+
+2012-09-04 22:42:45,223 - [INFO] - from play in play-akka.actor.default-dispatcher-1 
+database [default] connected at jdbc:h2:mem:play
+
+2012-09-04 22:42:45,249 - [INFO] - from play in play-akka.actor.default-dispatcher-1 
+Application started (Dev)
+
+2012-09-04 22:42:55,084 - [ERROR] - from application in play-akka.actor.actions-dispatcher-8 
+
+
+! @6bhjbh83m - Internal server error, for request [POST /project/create] ->
+
+play.core.ActionInvoker$$anonfun$receive$1$$anon$1: Execution exception [[RuntimeException: String expected]]
+	at play.core.ActionInvoker$$anonfun$receive$1.apply(Invoker.scala:134) [play_2.9.1-2.0.2.jar:2.0.2]
+	at play.core.ActionInvoker$$anonfun$receive$1.apply(Invoker.scala:115) [play_2.9.1-2.0.2.jar:2.0.2]
+	at akka.actor.Actor$class.apply(Actor.scala:318) [akka-actor.jar:2.0.2]
+	at play.core.ActionInvoker.apply(Invoker.scala:113) [play_2.9.1-2.0.2.jar:2.0.2]
+	at akka.actor.ActorCell.invoke(ActorCell.scala:626) [akka-actor.jar:2.0.2]
+	at akka.dispatch.Mailbox.processMailbox(Mailbox.scala:197) [akka-actor.jar:2.0.2]
+	at akka.dispatch.Mailbox.run(Mailbox.scala:179) [akka-actor.jar:2.0.2]
+	at akka.dispatch.ForkJoinExecutorConfigurator$MailboxExecutionTask.exec(AbstractDispatcher.scala:516) [akka-actor.jar:2.0.2]
+	at akka.jsr166y.ForkJoinTask.doExec(ForkJoinTask.java:259) [akka-actor.jar:2.0.2]
+	at akka.jsr166y.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:975) [akka-actor.jar:2.0.2]
+	at akka.jsr166y.ForkJoinPool.runWorker(ForkJoinPool.java:1479) [akka-actor.jar:2.0.2]
+	at akka.jsr166y.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:104) [akka-actor.jar:2.0.2]
+Caused by: java.lang.RuntimeException: String expected
+	at play.api.libs.json.DefaultReads$StringReads$.reads(Reads.scala:98) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.api.libs.json.DefaultReads$StringReads$.reads(Reads.scala:95) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.api.libs.json.JsValue$class.as(JsValue.scala:56) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.api.libs.json.JsUndefined.as(JsValue.scala:70) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at models.Project$ProjectFormat$.reads(Project.scala:95) ~[classes/:na]
+	at models.Project$ProjectFormat$.reads(Project.scala:81) ~[classes/:na]
+	at play.api.libs.json.JsValue$class.as(JsValue.scala:56) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.api.libs.json.JsObject.as(JsValue.scala:128) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at controllers.Application$$anonfun$createProject$1.apply(Application.scala:30) ~[classes/:na]
+	at controllers.Application$$anonfun$createProject$1.apply(Application.scala:29) ~[classes/:na]
+	at play.api.mvc.Action$$anon$1.apply(Action.scala:170) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.core.ActionInvoker$$anonfun$receive$1$$anonfun$6.apply(Invoker.scala:126) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.core.ActionInvoker$$anonfun$receive$1$$anonfun$6.apply(Invoker.scala:126) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.utils.Threads$.withContextClassLoader(Threads.scala:17) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.core.ActionInvoker$$anonfun$receive$1.apply(Invoker.scala:125) [play_2.9.1-2.0.2.jar:2.0.2]
+	... 11 common frames omitted
+
+2012-09-04 22:43:44,850 - [ERROR] - from application in play-akka.actor.actions-dispatcher-1 
+
+
+! @6bhjbh83n - Internal server error, for request [POST /project/create] ->
+
+play.core.ActionInvoker$$anonfun$receive$1$$anon$1: Execution exception [[JdbcSQLException: Referential integrity constraint violation: "FK_PROJECT_CLIENT: PUBLIC.PROJECT FOREIGN KEY(CLIENT_ID) REFERENCES PUBLIC.CLIENT(ID)"; SQL statement:
+insert into project values(           (select next value for project_seq),           ?,?,?,?,?) [23506-158]]]
+	at play.core.ActionInvoker$$anonfun$receive$1.apply(Invoker.scala:134) [play_2.9.1-2.0.2.jar:2.0.2]
+	at play.core.ActionInvoker$$anonfun$receive$1.apply(Invoker.scala:115) [play_2.9.1-2.0.2.jar:2.0.2]
+	at akka.actor.Actor$class.apply(Actor.scala:318) [akka-actor.jar:2.0.2]
+	at play.core.ActionInvoker.apply(Invoker.scala:113) [play_2.9.1-2.0.2.jar:2.0.2]
+	at akka.actor.ActorCell.invoke(ActorCell.scala:626) [akka-actor.jar:2.0.2]
+	at akka.dispatch.Mailbox.processMailbox(Mailbox.scala:197) [akka-actor.jar:2.0.2]
+	at akka.dispatch.Mailbox.run(Mailbox.scala:179) [akka-actor.jar:2.0.2]
+	at akka.dispatch.ForkJoinExecutorConfigurator$MailboxExecutionTask.exec(AbstractDispatcher.scala:516) [akka-actor.jar:2.0.2]
+	at akka.jsr166y.ForkJoinTask.doExec(ForkJoinTask.java:259) [akka-actor.jar:2.0.2]
+	at akka.jsr166y.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:975) [akka-actor.jar:2.0.2]
+	at akka.jsr166y.ForkJoinPool.runWorker(ForkJoinPool.java:1479) [akka-actor.jar:2.0.2]
+	at akka.jsr166y.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:104) [akka-actor.jar:2.0.2]
+Caused by: org.h2.jdbc.JdbcSQLException: Referential integrity constraint violation: "FK_PROJECT_CLIENT: PUBLIC.PROJECT FOREIGN KEY(CLIENT_ID) REFERENCES PUBLIC.CLIENT(ID)"; SQL statement:
+insert into project values(           (select next value for project_seq),           ?,?,?,?,?) [23506-158]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:329) ~[h2.jar:1.3.158]
+	at org.h2.message.DbException.get(DbException.java:169) ~[h2.jar:1.3.158]
+	at org.h2.message.DbException.get(DbException.java:146) ~[h2.jar:1.3.158]
+	at org.h2.constraint.ConstraintReferential.checkRowOwnTable(ConstraintReferential.java:345) ~[h2.jar:1.3.158]
+	at org.h2.constraint.ConstraintReferential.checkRow(ConstraintReferential.java:287) ~[h2.jar:1.3.158]
+	at org.h2.table.Table.fireConstraints(Table.java:861) ~[h2.jar:1.3.158]
+	at org.h2.table.Table.fireAfterRow(Table.java:878) ~[h2.jar:1.3.158]
+	at org.h2.command.dml.Insert.insertRows(Insert.java:126) ~[h2.jar:1.3.158]
+	at org.h2.command.dml.Insert.update(Insert.java:84) ~[h2.jar:1.3.158]
+	at org.h2.command.CommandContainer.update(CommandContainer.java:71) ~[h2.jar:1.3.158]
+	at org.h2.command.Command.executeUpdate(Command.java:212) ~[h2.jar:1.3.158]
+	at org.h2.jdbc.JdbcPreparedStatement.executeUpdateInternal(JdbcPreparedStatement.java:143) ~[h2.jar:1.3.158]
+	at org.h2.jdbc.JdbcPreparedStatement.executeUpdate(JdbcPreparedStatement.java:129) ~[h2.jar:1.3.158]
+	at com.jolbox.bonecp.PreparedStatementHandle.executeUpdate(PreparedStatementHandle.java:203) ~[bonecp.jar:0.7.1.RELEASE]
+	at anorm.Sql$class.execute1(Anorm.scala:447) ~[anorm_2.9.1-2.0.2.jar:2.0.2]
+	at anorm.SimpleSql.execute1(Anorm.scala:359) ~[anorm_2.9.1-2.0.2.jar:2.0.2]
+	at anorm.Sql$class.executeInsert(Anorm.scala:454) ~[anorm_2.9.1-2.0.2.jar:2.0.2]
+	at anorm.SimpleSql.executeInsert(Anorm.scala:359) ~[anorm_2.9.1-2.0.2.jar:2.0.2]
+	at models.Project$$anonfun$create$1.apply(Project.scala:65) ~[classes/:na]
+	at models.Project$$anonfun$create$1.apply(Project.scala:52) ~[classes/:na]
+	at play.api.db.DBApi$class.withConnection(DB.scala:79) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.api.db.BoneCPApi.withConnection(DB.scala:273) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.api.db.DB$$anonfun$withConnection$3.apply(DB.scala:158) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.api.db.DB$$anonfun$withConnection$3.apply(DB.scala:158) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at scala.Option.map(Option.scala:133) ~[scala-library.jar:0.11.3]
+	at play.api.db.DB$.withConnection(DB.scala:158) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at models.Project$.create(Project.scala:51) ~[classes/:na]
+	at controllers.Application$$anonfun$createProject$1.apply(Application.scala:31) ~[classes/:na]
+	at controllers.Application$$anonfun$createProject$1.apply(Application.scala:29) ~[classes/:na]
+	at play.api.mvc.Action$$anon$1.apply(Action.scala:170) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.core.ActionInvoker$$anonfun$receive$1$$anonfun$6.apply(Invoker.scala:126) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.core.ActionInvoker$$anonfun$receive$1$$anonfun$6.apply(Invoker.scala:126) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.utils.Threads$.withContextClassLoader(Threads.scala:17) ~[play_2.9.1-2.0.2.jar:2.0.2]
+	at play.core.ActionInvoker$$anonfun$receive$1.apply(Invoker.scala:125) [play_2.9.1-2.0.2.jar:2.0.2]
+	... 11 common frames omitted
+
+2012-09-04 22:49:11,643 - [INFO] - from play in play-akka.actor.default-dispatcher-5 
+database [default] connected at jdbc:h2:mem:play
+
+2012-09-04 22:49:11,691 - [INFO] - from play in play-akka.actor.default-dispatcher-5 
+Application started (Dev)
+
