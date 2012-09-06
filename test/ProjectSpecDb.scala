@@ -48,11 +48,16 @@ class ProjectSpecDb extends Specification {
       val result: Option[Client] = Client.getByName("Mini")
       result.get mustEqual Client(result.get.id, "MINI")
     }
+
+    "get all clients" in FakeApplicationWithDbData {
+      val result: List[Client] = Client.findAll
+      result.size must be greaterThan(0)
+    }
   }
 
   "Project model" should {
     " get all available projects" in FakeApplicationWithDbData {
-      val result: List[Project] = Project.all
+      val result: List[Project] = Project.findAll
       result.size must be greaterThan(0)
     }
 

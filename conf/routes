@@ -13,6 +13,7 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 #REST
 
 POST    /client/create             controllers.Application.createClient
+GET     /client/all               controllers.Application.allClients
 POST    /project/create            controllers.Application.createProject
 GET     /project/all               controllers.Application.allProjects
 POST    /resource/add              controllers.Application.addResource

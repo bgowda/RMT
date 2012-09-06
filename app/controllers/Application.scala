@@ -33,6 +33,16 @@ object Application extends Controller{
       }
   }
 
+  def allClients= Action {
+    try {
+      val all: List[Client] = Client.findAll
+      val json = Json.generate(all)
+      Ok(json).as("application/json")
+    }catch {
+      case e => BadRequest("Error occured while retrieving data.")
+    }
+  }
+
   def createProject= Action(parse.json) { request =>
       val project: Project = request.body.as[Project]
       val id: Long = Project.create(project)
@@ -41,7 +51,7 @@ object Application extends Controller{
 
   def allProjects= Action {
     try {
-      val all: List[Project] = Project.all
+      val all: List[Project] = Project.findAll
       val json = Json.generate(all)
       Ok(json).as("application/json")
     }catch {

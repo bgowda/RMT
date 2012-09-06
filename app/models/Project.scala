@@ -67,7 +67,7 @@ object Project {
     }
   }
 
-  def all = {
+  def findAll = {
     DB.withConnection {
       implicit connection =>
         SQL(

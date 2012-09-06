@@ -24,10 +24,6 @@ object Client {
   }
 
   def create(client:Client):Option[Client] = {
-   /*match {
-
-      case Some(clientFound) => throw new RuntimeException("Client with that name is already present.")
-      case None => {*/
           DB.withConnection { implicit connection =>
 
             SQL(
@@ -40,8 +36,6 @@ object Client {
             case Some(id) => get(id)
             case None => None
           }
-      /*}
-    }*/
   }
 
   def get(id:Long):Option[Client] = {
@@ -68,6 +62,16 @@ object Client {
     }
   }
 
+  def findAll = {
+    DB.withConnection {
+      implicit connection =>
+        SQL(
+          """
+            select * from client
+          """
+        ).as(Client.mapper *).toList
+    }
+  }
 
   // For Json Serialization and Deserialization
   implicit object ClientFormat extends Format[Client] {
