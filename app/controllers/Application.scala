@@ -16,7 +16,7 @@ object Application extends Controller{
         val clientParsed: Client = request.body.as[Client]
         Client.getByName(clientParsed.name) match {
 
-           case Some(clientFound) => throw new DuplicateException("Client with that name is already present.")
+           case Some(clientFound) => sys.error("Client name '"+clientParsed.name+"' is already present")
            case None => {
               val result: Option[Client] = Client.create(clientParsed)
               result match {
@@ -29,7 +29,7 @@ object Application extends Controller{
            }
         }
       }catch {
-        case e =>  BadRequest("Error processing request, verify posted json request body.["+e.getMessage+"]").as("application/json")
+        case e =>  BadRequest("Error processing request, verify posted json request body.\n[ "+e.getMessage+" ]").as("application/json")
       }
   }
 

@@ -47,6 +47,7 @@ object Project {
     }
   }
 
+
   def create(project: Project) = {
     DB.withConnection {
       implicit connection =>

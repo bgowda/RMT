@@ -7,4 +7,4 @@ package exception
  * Time: 14:37
  * To change this template use File | Settings | File Templates.
  */
-class DuplicateException(message:String) extends RuntimeException
+case class DuplicateException(message:String) extends RuntimeException
