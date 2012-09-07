@@ -4,7 +4,9 @@ import anorm._
 import anorm.SqlParser._
 import play.api.db.DB
 import play.api.Play.current
-import java.util.Date
+import java.util.{Locale, Date}
+import play.api.libs.json.{JsString, JsObject, JsValue, Format}
+import java.text.SimpleDateFormat
 
 /**
  * Created with IntelliJ IDEA.
@@ -70,10 +72,56 @@ object Booking {
       ).as(long("id") ~ str("firstName") ~ str("lastName") ~ str("role") ~ str("department")
         ~ get[Option[Long]]("hours") ~  get[Option[Date]]("bookingDate") ~  get[Option[String]]("status") map(flatten) *)
 
-    println(resourceBookings)
+      println("List of resource bookings found - "+resourceBookings)
       resourceBookings
     }
 
+  }
+
+  // For Json Serialization and Deserialization
+  implicit object BookingFormat extends Format[Booking] {
+    //marshalling
+    def reads(json: JsValue): Booking = Booking(
+      (json \ "id").asOpt[String].map(_.trim).filterNot(_.isEmpty).map {
+        id =>
+          Id(id.toLong)
+      }.getOrElse {
+        NotAssigned
+      },
+      (json \ "resourceId").asOpt[String].map(_.trim).filterNot(_.isEmpty).map {
+        resourceId => resourceId.toLong
+      }.getOrElse {
+        sys.error("resourceId is mandatory. Should be a Number.")
+      },
+      (json \ "hours").asOpt[String].map(_.trim).filterNot(_.isEmpty).map {
+        hours => hours.toInt
+      }.getOrElse {
+        0
+      },
+      (json \ "bookingDate").asOpt[String].map(_.trim).filterNot(_.isEmpty).map {
+        bookingDate => new SimpleDateFormat("d-MMM-yyyy", Locale.ENGLISH).parse(bookingDate)
+      }.getOrElse {
+        sys.error("'bookingDate' is mandatory")
+      },
+      (json \ "status").asOpt[String].map(_.trim).filterNot(_.isEmpty).map {
+        status => BookingStatus.withName(status)
+      }.getOrElse {
+        sys.error("'status' is mandatory")
+      }
+    )
+    //(json \ "role").asOpt[List[Role]].getOrElse(List()))
+
+    //unmarshaling
+
+    def writes(p: Project): JsValue = JsObject(Seq(
+      "id" -> JsString(p.id.map(_.toString).getOrElse("")),
+      "clientId" -> JsString(p.clientId.toString),
+      "code" -> JsString(p.code),
+      "name" -> JsString(p.name),
+      "owner" -> JsString(p.owner),
+      "location" -> JsString(p.location)
+      //  "role" -> JsArray(u.role.map(toJson(_)))
+    ))
   }
 
 }
