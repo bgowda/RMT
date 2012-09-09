@@ -17,12 +17,12 @@ import play.api.Play.current
 
 //ERROR "not enough arguments for constructor Project" - make sure to provide default parameter
 case class Project(
-                     id: Pk[Long] = NotAssigned,
-                     clientId:Long = 0,
-                     code: String = "",
-                     name: String = "",
-                     owner: String = "",
-                     location: String = ""
+                    id: Pk[Long] = NotAssigned,
+                    clientId: Long = 0,
+                    code: String = "",
+                    name: String = "",
+                    owner: String = "",
+                    location: String = ""
                     ) {
 
   var resources = ListBuffer[Resource]()
@@ -37,7 +37,7 @@ object Project {
    * Anorm parser for Todo, used to map sql to object
    **/
   val mapper = {
-      get[Pk[Long]]("id") ~
+    get[Pk[Long]]("id") ~
       get[Long]("client_id") ~
       get[String]("code") ~
       get[String]("name") ~
@@ -98,6 +98,7 @@ object Project {
       (json \ "owner").as[String],
       (json \ "location").as[String]
     )
+
     //(json \ "role").asOpt[List[Role]].getOrElse(List()))
 
     //unmarshaling

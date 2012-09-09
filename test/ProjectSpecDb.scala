@@ -1,6 +1,6 @@
 import anorm.NotAssigned
 import java.text.SimpleDateFormat
-import java.util.{Date, Locale}
+import java.util.Locale
 import models._
 
 import org.h2.jdbc.JdbcSQLException
@@ -96,7 +96,7 @@ class ProjectSpecDb extends Specification {
          val resource:Option[Resource] = Resource.addResource(Resource(projectId = 1, firstName = "Bindiya", lastName = "Jinnappa", role = "TDM", department = "Technology"))
 
 
-         val bookingId = Booking.bookResource(Booking(NotAssigned,resource.get.id.get , hours = 5, bookingDate = bookingDate, status = BookingStatus.AWAITING))
+         val bookingId = Booking.bookResource(Booking(NotAssigned,resource.get.id.get , hours = "5", bookingDate = bookingDate, status = BookingStatus.AWAITING))
          bookingId mustEqual 1
        }
 
@@ -104,28 +104,27 @@ class ProjectSpecDb extends Specification {
          val id: Long = Project.create(Project(NotAssigned, 1, "CODE 1", "Test Project", "Bindiya Jinnappa", "London"))
 
          val resource1:Option[Resource]  = Resource.addResource(Resource(projectId = id, firstName = "Bindiya", lastName = "Jinnappa", role = "TDM", department = "Technology"))
-          Booking.bookResource(Booking(NotAssigned,resource1.get.id.get, hours = 5, bookingDate = bookingDate, status = BookingStatus.AWAITING))
+          Booking.bookResource(Booking(NotAssigned,resource1.get.id.get, hours = "5", bookingDate = bookingDate, status = BookingStatus.AWAITING))
 
          val resourceId2:Option[Resource]  = Resource.addResource(Resource(projectId = id, firstName = "Andrew", lastName = "Smith", role = "TA", department = "Technology"))
-          Booking.bookResource(Booking(NotAssigned,resourceId2.get.id.get , hours = 5, bookingDate = bookingDate, status = BookingStatus.REQUIRED))
+          Booking.bookResource(Booking(NotAssigned,resourceId2.get.id.get , hours = "5", bookingDate = bookingDate, status = BookingStatus.REQUIRED))
 
          val resourceId3:Option[Resource]  = Resource.addResource(Resource(projectId = id, firstName = "Sebastian", lastName = "Wolf", role = "SWD", department = "Technology"))
 
-         val project: List[(Long, String, String, String, String, Option[Long], Option[Date], Option[String] )]
-         = Booking.getResourceBookingForProject(projectName = "Test Project")
+         val project: List[ResourcesBooking] = Booking.getResourceBookingForProject(projectName = "Test Project")
          project must have length(3)
        }
 
       "get all booking for given resource and invalid project" in FakeApplicationWithDbData {
         val resource1:Option[Resource]  = Resource.addResource(Resource(projectId = 1, firstName = "Bindiya", lastName = "Jinnappa", role = "TDM", department = "Technology"))
-        Booking.bookResource(Booking(NotAssigned,resource1.get.id.get, hours = 5, bookingDate = bookingDate, status = BookingStatus.AWAITING))
+        Booking.bookResource(Booking(NotAssigned,resource1.get.id.get, hours = "5", bookingDate = bookingDate, status = BookingStatus.AWAITING))
 
         val resourceId2:Option[Resource]  = Resource.addResource(Resource(projectId = 1, firstName = "Andrew", lastName = "Smith", role = "TA", department = "Technology"))
-        Booking.bookResource(Booking(NotAssigned,resourceId2.get.id.get , hours = 5, bookingDate = bookingDate, status = BookingStatus.REQUIRED))
+        Booking.bookResource(Booking(NotAssigned,resourceId2.get.id.get , hours = "5", bookingDate = bookingDate, status = BookingStatus.REQUIRED))
 
         val resourceId3:Option[Resource]  = Resource.addResource(Resource(projectId = 1, firstName = "Sebastian", lastName = "Wolf", role = "SWD", department = "Technology"))
 
-        val project: List[(Long, String, String, String, String, Option[Long], Option[Date], Option[String] )]  = Booking.getResourceBookingForProject(projectName = "silly")
+        val project: List[ResourcesBooking]  = Booking.getResourceBookingForProject(projectName = "silly")
         println(project)
         project must have length(0)
       }

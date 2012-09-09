@@ -16,16 +16,16 @@ object Resource {
 
   val mapper = {
     SqlParser.get[Pk[Long]]("id") ~
-    SqlParser.get[Long]("project_id") ~
-    SqlParser.get[String]("firstName") ~
-    SqlParser.get[String]("lastName") ~
-    SqlParser.get[String]("role") ~
-    SqlParser.get[String]("department") map {
-      case id ~ projectId ~ firstName ~lastName ~ role ~ department => Resource(id,projectId,firstName,lastName,role,department)
+      SqlParser.get[Long]("project_id") ~
+      SqlParser.get[String]("firstName") ~
+      SqlParser.get[String]("lastName") ~
+      SqlParser.get[String]("role") ~
+      SqlParser.get[String]("department") map {
+      case id ~ projectId ~ firstName ~ lastName ~ role ~ department => Resource(id, projectId, firstName, lastName, role, department)
     }
   }
 
-  def addResource(resource: Resource):Option[Resource] = {
+  def addResource(resource: Resource): Option[Resource] = {
     DB.withConnection {
       implicit connection =>
         SQL(
@@ -39,34 +39,35 @@ object Resource {
           'role -> resource.role,
           'department -> resource.department
         ).executeInsert()
-    }match {
+    } match {
       case Some(id) => get(id)
       case None => None
     }
   }
 
-  def get(id:Long):Option[Resource] = {
-    DB.withConnection { implicit connection =>
-      SQL(
-        """
+  def get(id: Long): Option[Resource] = {
+    DB.withConnection {
+      implicit connection =>
+        SQL(
+          """
           select * from resource where id= {resourceId}
-        """
-      ).on(
-        'resourceId -> id
-      ).as(Resource.mapper *).toList.headOption
+          """
+        ).on(
+          'resourceId -> id
+        ).as(Resource.mapper *).toList.headOption
     }
   }
 
-  def allResourcesPerProject(projectId:Long): List[Resource] = {
-     DB.withConnection{
-       implicit connection =>
-         SQL(
-           """
+  def allResourcesPerProject(projectId: Long): List[Resource] = {
+    DB.withConnection {
+      implicit connection =>
+        SQL(
+          """
               select * from resource where project_id = {projectId}
-           """).on(
-         'projectId -> projectId
-         ).as(Resource.mapper *).toList
-     }
+          """).on(
+          'projectId -> projectId
+        ).as(Resource.mapper *).toList
+    }
   }
 
 

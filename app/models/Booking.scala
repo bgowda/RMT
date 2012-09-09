@@ -15,70 +15,73 @@ import java.text.SimpleDateFormat
  * Time: 14:24
  * To change this template use File | Settings | File Templates.
  */
-object BookingStatus extends Enumeration("AWAITING","TENTATIVE", "REQUIRED"){
-    type BookingStatusType = Value
-    val AWAITING, TENTATIVE, REQUIRED = Value
+object BookingStatus extends Enumeration("AWAITING", "TENTATIVE", "REQUIRED") {
+  type BookingStatusType = Value
+  val AWAITING, TENTATIVE, REQUIRED = Value
 }
 
-case class Booking(id:Pk[Long]= NotAssigned,
-                    resourceId:Long = 0,
-                    hours:String = "",
-                    bookingDate:Date ,
-                    status:BookingStatus.BookingStatusType)
+case class Booking(id: Pk[Long] = NotAssigned,
+                   resourceId: Long = 0,
+                   hours: String = "",
+                   bookingDate: Date,
+                   status: BookingStatus.BookingStatusType)
 
 
-case class ResourcesBooking(resourceId:Long,
-                             firstName:String,
-                             lastName:String,
-                             role:String,
-                             department:String,
-                             hours:Option[String],
-                             bookingDate:Option[Date],
-                             status:Option[String]
+case class ResourcesBooking(resourceId: Long,
+                            firstName: String,
+                            lastName: String,
+                            role: String,
+                            department: String,
+                            hours: Option[String],
+                            bookingDate: Option[Date],
+                            status: Option[String]
                              )
+
 object Booking {
 
-  def bookResource(booking:Booking):Long = {
+  def bookResource(booking: Booking): Long = {
 
-    DB.withConnection{ implicit connection =>
-       SQL(
-         """
+    DB.withConnection {
+      implicit connection =>
+        SQL(
+          """
            insert into booking values ((select next value for booking_seq),
             {resourceId},{hours},{bookingDate},{status})
-         """).on(
-       'resourceId -> booking.resourceId,
-       'hours -> booking.hours,
-       'bookingDate -> booking.bookingDate,
-       'status -> booking.status.toString
-       ).executeInsert().get
+          """).on(
+          'resourceId -> booking.resourceId,
+          'hours -> booking.hours,
+          'bookingDate -> booking.bookingDate,
+          'status -> booking.status.toString
+        ).executeInsert().get
     }
   }
 
-  def getResourceBookingForProject(projectName:String) = {
-      executeQuery(projectName) map {
-        x => ResourcesBooking(x._1,x._2,x._3,x._4,x._5,x._6,x._7,x._8)
-      }
+  def getResourceBookingForProject(projectName: String) = {
+    executeQuery(projectName) map {
+      x => ResourcesBooking(x._1, x._2, x._3, x._4, x._5, x._6, x._7, x._8)
+    }
   }
 
-  def executeQuery(projectName:String) ={
-    DB.withConnection{ implicit connection =>
+  private def executeQuery(projectName: String) = {
+    DB.withConnection {
+      implicit connection =>
 
-    val  resourceBookings:List[(Long, String, String, String, String, Option[String], Option[Date], Option[String] )] =
-      SQL(
-      """
+        val resourceBookings: List[(Long, String, String, String, String, Option[String], Option[Date], Option[String])] =
+          SQL(
+            """
           select r.id, r.firstName,r.project_id,r.lastName,r.role,r.department, b.hours,b.bookingDate, b.status
           from Resource r
           left join project p on r.project_id = p.id
           left outer join Booking b
           on  b.resource_id = r.id
            where lower(p.name) = lower({projectName})
-      """).on(
-      'projectName -> projectName
-      ).as(long("id") ~ str("firstName") ~ str("lastName") ~ str("role") ~ str("department")
-        ~ get[Option[String]]("hours") ~  get[Option[Date]]("bookingDate") ~  get[Option[String]]("status") map (flatten) *)
+            """).on(
+            'projectName -> projectName
+          ).as(long("id") ~ str("firstName") ~ str("lastName") ~ str("role") ~ str("department")
+            ~ get[Option[String]]("hours") ~ get[Option[Date]]("bookingDate") ~ get[Option[String]]("status") map (flatten) *)
 
-      println("List of resource bookings found - "+resourceBookings)
-      resourceBookings
+        println("List of resource bookings found - " + resourceBookings)
+        resourceBookings
     }
 
   }
@@ -121,4 +124,5 @@ object Booking {
       "status" -> JsString(b.status.toString)
     ))
   }
+
 }

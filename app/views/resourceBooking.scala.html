@@ -4,13 +4,13 @@
 @import models._
 @main("List resource"){
 
-    <h1>@resources.size resources(s)</h1>
+<h1>@resources.size resources(s)</h1>
 
-    <ul>
-        @resources.map {  resource =>
-                <li>
-                    @resource.firstName @resource.lastName
-                </li>
-        }
-    </ul>
+<ul>
+    @resources.map { resource =>
+    <li>
+        @resource.firstName @resource.lastName
+    </li>
+    }
+</ul>
 }

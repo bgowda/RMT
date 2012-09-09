@@ -1,5 +1,3 @@
-import org.specs2.execute.Result
-
 /**
  * Created with IntelliJ IDEA.
  * User: dasbh

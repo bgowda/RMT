@@ -84,17 +84,18 @@ object Application extends Controller {
     request =>
       try {
         val bookings: List[Booking] = request.body.as[List[Booking]]
-        val result : List[Long] = bookings map (x => Booking.bookResource(x))
-        Ok("Bookings added :"+result.toString).as("application/json")
+        val result: List[Long] = bookings map (x => Booking.bookResource(x))
+        Ok("Bookings added :" + result.toString).as("application/json")
       } catch {
         case e => BadRequest("Error processing request, verify posted json request body." + e.getMessage).as("application/json")
       }
   }
 
-  def getBookings(projectName:String) = Action { request =>
-    val bookings: List[ResourcesBooking] = Booking.getResourceBookingForProject(projectName)
-    val json: String = Json.generate(bookings)
-    Ok(json).as("application/json")
+  def getBookings(projectName: String) = Action {
+    request =>
+      val bookings: List[ResourcesBooking] = Booking.getResourceBookingForProject(projectName)
+      val json: String = Json.generate(bookings)
+      Ok(json).as("application/json")
   }
 
 

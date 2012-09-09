@@ -12,53 +12,56 @@ import play.api.libs.json.{JsString, JsObject, JsValue, Format}
  * Time: 20:22
  * To change this template use File | Settings | File Templates.
  */
-case class Client(id: Pk[Long] = NotAssigned, name:String = "")
+case class Client(id: Pk[Long] = NotAssigned, name: String = "")
 
 object Client {
 
   val mapper = {
     SqlParser.get[Pk[Long]]("id") ~
-    SqlParser.get[String]("name") map {
+      SqlParser.get[String]("name") map {
       case id ~ name => Client(id, name)
     }
   }
 
-  def create(client:Client):Option[Client] = {
-          DB.withConnection { implicit connection =>
+  def create(client: Client): Option[Client] = {
+    DB.withConnection {
+      implicit connection =>
 
-            SQL(
-              """
+        SQL(
+          """
                 insert into client values ((select next value for client_seq),{name})
-              """).on(
-            'name -> client.name
-            ).executeInsert()
-          } match {
-            case Some(id) => get(id)
-            case None => None
-          }
-  }
-
-  def get(id:Long):Option[Client] = {
-    DB.withConnection { implicit connection =>
-      SQL(
-        """
-          select * from client where id= {clientId}
-        """
-      ).on(
-      'clientId -> id
-      ).as(Client.mapper *).toList.headOption
+          """).on(
+          'name -> client.name
+        ).executeInsert()
+    } match {
+      case Some(id) => get(id)
+      case None => None
     }
   }
 
-  def getByName(name:String):Option[Client] = {
-    DB.withConnection { implicit connection =>
-      SQL(
-        """
+  def get(id: Long): Option[Client] = {
+    DB.withConnection {
+      implicit connection =>
+        SQL(
+          """
+          select * from client where id= {clientId}
+          """
+        ).on(
+          'clientId -> id
+        ).as(Client.mapper *).toList.headOption
+    }
+  }
+
+  def getByName(name: String): Option[Client] = {
+    DB.withConnection {
+      implicit connection =>
+        SQL(
+          """
           select * from client where lower(name)= lower({name})
-        """
-      ).on(
-        'name -> name
-      ).as(Client.mapper *).toList.headOption
+          """
+        ).on(
+          'name -> name
+        ).as(Client.mapper *).toList.headOption
     }
   }
 
@@ -86,7 +89,7 @@ object Client {
       (json \ "name").as[String]
     )
 
-      //unmarshaling
+    //unmarshaling
 
     def writes(p: Client): JsValue = JsObject(Seq(
       "id" -> JsString(p.id.map(_.toString).getOrElse("")),
