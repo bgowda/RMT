@@ -2,10 +2,11 @@ package controllers
 
 import play.api.mvc._
 
-import models.{Booking, Client, Project, Resource}
+import models._
 import com.codahale.jerkson.Json
 import play.api.libs.json.Json._
 import Project.ProjectFormat
+import scala.Some
 
 
 object Application extends Controller {
@@ -83,9 +84,17 @@ object Application extends Controller {
     request =>
       try {
         val bookings: List[Booking] = request.body.as[List[Booking]]
-        bookings flatMap (Booking.bookResource(_))
-
+        val result : List[Long] = bookings map (x => Booking.bookResource(x))
+        Ok("Bookings added :"+result.toString).as("application/json")
+      } catch {
+        case e => BadRequest("Error processing request, verify posted json request body." + e.getMessage).as("application/json")
       }
+  }
+
+  def getBookings(projectName:String) = Action { request =>
+    val bookings: List[ResourcesBooking] = Booking.getResourceBookingForProject(projectName)
+    val json: String = Json.generate(bookings)
+    Ok(json).as("application/json")
   }
 
 

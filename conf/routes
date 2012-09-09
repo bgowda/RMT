@@ -17,8 +17,8 @@ GET     /client/all               controllers.Application.allClients
 POST    /project/create            controllers.Application.createProject
 GET     /project/all               controllers.Application.allProjects
 POST    /resource/add              controllers.Application.addResource
-
-
+POST    /bookings/add              controllers.Application.bookResource
+GET     /:projectName/lists/bookings        controllers.Application.getBookings(projectName:String)
 
 POST      /sayHello                  controllers.Application.sayHello
 POST      /sayResponse               controllers.Application.sayResponse

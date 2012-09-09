@@ -22,7 +22,7 @@ object BookingStatus extends Enumeration("AWAITING","TENTATIVE", "REQUIRED"){
 
 case class Booking(id:Pk[Long]= NotAssigned,
                     resourceId:Long = 0,
-                    hours:Int = 0,
+                    hours:String = "",
                     bookingDate:Date ,
                     status:BookingStatus.BookingStatusType)
 
@@ -32,9 +32,9 @@ case class ResourcesBooking(resourceId:Long,
                              lastName:String,
                              role:String,
                              department:String,
-                             hours:Int,
-                             bookingDate:Date,
-                             status:String
+                             hours:Option[String],
+                             bookingDate:Option[Date],
+                             status:Option[String]
                              )
 object Booking {
 
@@ -54,11 +54,16 @@ object Booking {
     }
   }
 
-  def getResourceBookingForProject(projectName:String) ={
+  def getResourceBookingForProject(projectName:String) = {
+      executeQuery(projectName) map {
+        x => ResourcesBooking(x._1,x._2,x._3,x._4,x._5,x._6,x._7,x._8)
+      }
+  }
+
+  def executeQuery(projectName:String) ={
     DB.withConnection{ implicit connection =>
 
-    val  resourceBookings:List[(Long, String, String, String, String,
-      Option[Long], Option[Date], Option[String] )] =
+    val  resourceBookings:List[(Long, String, String, String, String, Option[String], Option[Date], Option[String] )] =
       SQL(
       """
           select r.id, r.firstName,r.project_id,r.lastName,r.role,r.department, b.hours,b.bookingDate, b.status
@@ -70,7 +75,7 @@ object Booking {
       """).on(
       'projectName -> projectName
       ).as(long("id") ~ str("firstName") ~ str("lastName") ~ str("role") ~ str("department")
-        ~ get[Option[Long]]("hours") ~  get[Option[Date]]("bookingDate") ~  get[Option[String]]("status") map(flatten) *)
+        ~ get[Option[String]]("hours") ~  get[Option[Date]]("bookingDate") ~  get[Option[String]]("status") map (flatten) *)
 
       println("List of resource bookings found - "+resourceBookings)
       resourceBookings
@@ -93,11 +98,7 @@ object Booking {
       }.getOrElse {
         sys.error("resourceId is mandatory. Should be a Number.")
       },
-      (json \ "hours").asOpt[String].map(_.trim).filterNot(_.isEmpty).map {
-        hours => hours.toInt
-      }.getOrElse {
-        0
-      },
+      (json \ "hours").asOpt[String].getOrElse(""),
       (json \ "bookingDate").asOpt[String].map(_.trim).filterNot(_.isEmpty).map {
         bookingDate => new SimpleDateFormat("d-MMM-yyyy", Locale.ENGLISH).parse(bookingDate)
       }.getOrElse {
@@ -109,19 +110,15 @@ object Booking {
         sys.error("'status' is mandatory")
       }
     )
-    //(json \ "role").asOpt[List[Role]].getOrElse(List()))
 
     //unmarshaling
 
-    def writes(p: Project): JsValue = JsObject(Seq(
-      "id" -> JsString(p.id.map(_.toString).getOrElse("")),
-      "clientId" -> JsString(p.clientId.toString),
-      "code" -> JsString(p.code),
-      "name" -> JsString(p.name),
-      "owner" -> JsString(p.owner),
-      "location" -> JsString(p.location)
-      //  "role" -> JsArray(u.role.map(toJson(_)))
+    def writes(b: Booking): JsValue = JsObject(Seq(
+      "id" -> JsString(b.id.map(_.toString).getOrElse("")),
+      "resourceId" -> JsString(b.resourceId.toString),
+      "hours" -> JsString(b.hours),
+      "bookingDate" -> JsString(b.bookingDate.toString),
+      "status" -> JsString(b.status.toString)
     ))
   }
-
 }

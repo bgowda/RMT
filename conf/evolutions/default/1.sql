@@ -43,7 +43,7 @@ create table resource (
 create table booking (
   id                        bigint not null,
   resource_id               bigint not null,
-  hours                     bigint not null,
+  hours                     varchar(50) not null,
   bookingDate               date not null,
   status                    varchar(100) not null,
   constraint pk_booking  primary key (id),
