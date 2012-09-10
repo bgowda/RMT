@@ -93,7 +93,7 @@ object Application extends Controller {
 
   def getBookings(projectName: String) = Action {
     request =>
-      val bookings: List[ResourcesBooking] = Booking.getResourceBookingForProject(projectName)
+      val bookings: List[ResourcesBooking] = Booking.getResourceBookingForProject(projectName,"","")
       val json: String = Json.generate(bookings)
       Ok(json).as("application/json")
   }

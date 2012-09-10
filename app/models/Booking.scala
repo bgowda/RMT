@@ -56,13 +56,15 @@ object Booking {
     }
   }
 
-  def getResourceBookingForProject(projectName: String) = {
-    executeQuery(projectName) map {
+  def getResourceBookingForProject(projectName: String, startDate:String, endDate:String) = {
+    if ((startDate isEmpty) && (endDate isEmpty))
+      sys.error("StartDate and EndDate must not be empty")
+    executeQuery(projectName, parseDate(startDate), parseDate(endDate)) map {
       x => ResourcesBooking(x._1, x._2, x._3, x._4, x._5, x._6, x._7, x._8)
     }
   }
 
-  private def executeQuery(projectName: String) = {
+  private def executeQuery(projectName: String, startDate:Date, endDate:Date) = {
     DB.withConnection {
       implicit connection =>
 
@@ -103,7 +105,7 @@ object Booking {
       },
       (json \ "hours").asOpt[String].getOrElse(""),
       (json \ "bookingDate").asOpt[String].map(_.trim).filterNot(_.isEmpty).map {
-        bookingDate => new SimpleDateFormat("d-MMM-yyyy", Locale.ENGLISH).parse(bookingDate)
+        bookingDate => parseDate(bookingDate)
       }.getOrElse {
         sys.error("'bookingDate' is mandatory")
       },
@@ -125,4 +127,13 @@ object Booking {
     ))
   }
 
+
+  def parseDate(date: String): Date = {
+    try{
+      val parsedDate: Date = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH).parse(date)
+      parsedDate
+    }catch {
+      case e => sys.error("Unable to parse Date, format required is 'dd-MMM-yyyy'")
+    }
+  }
 }

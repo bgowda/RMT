@@ -100,6 +100,10 @@ class ProjectSpecDb extends Specification {
          bookingId mustEqual 1
        }
 
+        "validate startDate and endDate while retrieving all booking" in FakeApplicationWithDbData{
+          (Booking.getResourceBookingForProject("Test", "","")) must throwA[RuntimeException] // "StartDate and EndDate must not be empty"
+        }
+
        "get all booking for given resource and Project" in FakeApplicationWithDbData {
          val id: Long = Project.create(Project(NotAssigned, 1, "CODE 1", "Test Project", "Bindiya Jinnappa", "London"))
 
@@ -111,7 +115,7 @@ class ProjectSpecDb extends Specification {
 
          val resourceId3:Option[Resource]  = Resource.addResource(Resource(projectId = id, firstName = "Sebastian", lastName = "Wolf", role = "SWD", department = "Technology"))
 
-         val project: List[ResourcesBooking] = Booking.getResourceBookingForProject(projectName = "Test Project")
+         val project: List[ResourcesBooking] = Booking.getResourceBookingForProject(projectName = "Test Project","10-Sep-2012","15-Sep-2012")
          project must have length(3)
        }
 
@@ -124,7 +128,7 @@ class ProjectSpecDb extends Specification {
 
         val resourceId3:Option[Resource]  = Resource.addResource(Resource(projectId = 1, firstName = "Sebastian", lastName = "Wolf", role = "SWD", department = "Technology"))
 
-        val project: List[ResourcesBooking]  = Booking.getResourceBookingForProject(projectName = "silly")
+        val project: List[ResourcesBooking]  = Booking.getResourceBookingForProject(projectName = "silly","10-Sep-2012","15-Sep-2012")
         println(project)
         project must have length(0)
       }
