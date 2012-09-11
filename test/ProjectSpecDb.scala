@@ -19,7 +19,8 @@ import org.specs2.mutable._
 
 
 class ProjectSpecDb extends Specification {
-  val bookingDate = new SimpleDateFormat("d-MMM-yyyy", Locale.ENGLISH).parse("3-SEP-2012");
+  val bookingDate = new SimpleDateFormat("d-MMM-yyyy", Locale.ENGLISH).parse("13-SEP-2012");
+  val bookingDate2 = new SimpleDateFormat("d-MMM-yyyy", Locale.ENGLISH).parse("1-SEP-2012");
 
 
   object FakeApplicationWithDbData extends Around {
@@ -111,12 +112,13 @@ class ProjectSpecDb extends Specification {
           Booking.bookResource(Booking(NotAssigned,resource1.get.id.get, hours = "5", bookingDate = bookingDate, status = BookingStatus.AWAITING))
 
          val resourceId2:Option[Resource]  = Resource.addResource(Resource(projectId = id, firstName = "Andrew", lastName = "Smith", role = "TA", department = "Technology"))
-          Booking.bookResource(Booking(NotAssigned,resourceId2.get.id.get , hours = "5", bookingDate = bookingDate, status = BookingStatus.REQUIRED))
+          Booking.bookResource(Booking(NotAssigned,resourceId2.get.id.get , hours = "5", bookingDate = bookingDate2, status = BookingStatus.REQUIRED))
 
          val resourceId3:Option[Resource]  = Resource.addResource(Resource(projectId = id, firstName = "Sebastian", lastName = "Wolf", role = "SWD", department = "Technology"))
+         Booking.bookResource(Booking(NotAssigned,resourceId3.get.id.get, hours = "0", bookingDate = bookingDate, status = BookingStatus.UNKNOWN))
 
-         val project: List[ResourcesBooking] = Booking.getResourceBookingForProject(projectName = "Test Project","10-Sep-2012","15-Sep-2012")
-         project must have length(3)
+         val project: List[ResourcesBooking] = Booking.getResourceBookingForProject(projectName = "Test Project","10-SEP-2012","15-SEP-2012")
+         project must have length(2)
        }
 
       "get all booking for given resource and invalid project" in FakeApplicationWithDbData {
@@ -128,7 +130,7 @@ class ProjectSpecDb extends Specification {
 
         val resourceId3:Option[Resource]  = Resource.addResource(Resource(projectId = 1, firstName = "Sebastian", lastName = "Wolf", role = "SWD", department = "Technology"))
 
-        val project: List[ResourcesBooking]  = Booking.getResourceBookingForProject(projectName = "silly","10-Sep-2012","15-Sep-2012")
+        val project: List[ResourcesBooking]  = Booking.getResourceBookingForProject(projectName = "silly","10-SEP-2012","15-SEP-2012")
         println(project)
         project must have length(0)
       }

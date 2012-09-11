@@ -15,9 +15,9 @@ import java.text.SimpleDateFormat
  * Time: 14:24
  * To change this template use File | Settings | File Templates.
  */
-object BookingStatus extends Enumeration("AWAITING", "TENTATIVE", "REQUIRED") {
+object BookingStatus extends Enumeration("AWAITING", "TENTATIVE", "REQUIRED","UNKNOWN") {
   type BookingStatusType = Value
-  val AWAITING, TENTATIVE, REQUIRED = Value
+  val AWAITING, TENTATIVE, REQUIRED, UNKNOWN = Value
 }
 
 case class Booking(id: Pk[Long] = NotAssigned,
@@ -76,9 +76,12 @@ object Booking {
           left join project p on r.project_id = p.id
           left outer join Booking b
           on  b.resource_id = r.id
-           where lower(p.name) = lower({projectName})
+          where lower(p.name) = lower({projectName} )
+          and ((b.bookingDate between {startDate}  and {endDate} ) or  (b.bookingDate is null))
             """).on(
-            'projectName -> projectName
+            'projectName -> projectName,
+            'startDate -> startDate,
+            'endDate -> endDate
           ).as(long("id") ~ str("firstName") ~ str("lastName") ~ str("role") ~ str("department")
             ~ get[Option[String]]("hours") ~ get[Option[Date]]("bookingDate") ~ get[Option[String]]("status") map (flatten) *)
 
